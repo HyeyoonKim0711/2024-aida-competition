@@ -13,7 +13,7 @@
 
 
 ### 1.2 분석 과정
-![alt text](image.png)
+![image](https://github.com/user-attachments/assets/08e866f2-87b0-44fb-9349-fffd4cb53cc2)
 
 
 

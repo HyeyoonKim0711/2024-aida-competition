@@ -61,7 +61,7 @@
 - 성심당 오픈 직후 ~ 저녁 전까지 가장 소비 多
 
 ### 3.3 성심당 주 이용 고객 유형의 대전 중구 전체 소비 이력
-![alt text](image-6.png)
+![image](https://github.com/user-attachments/assets/c794c304-848f-4a9a-a081-0615916b1722)
 - 성심당 이용이 가장 많았던 경기도&서울특별시에서 유입된 20-30대 여성의 1년치 **대전 중구 전체의 소비 데이터** 파악
 - 각 시간대별로 제과점업이 가장 높은 항목
 
@@ -72,16 +72,15 @@
 <table>
   <tr>
     <td align="center">
-      <img src="image-7.png" alt="heatmap_평일_12" width="100%" />
+      <img src="https://github.com/user-attachments/assets/5b3245ee-6057-442c-8200-2b8e4b6b21a5" alt="수도권 20-30대 남성 소비항목" width="100%" />
       <p align="center"
     </td>
     <td align="center">
-      <img src="image-8.png" alt="heatmap_휴일_12" width="100%" />
+      <img src="https://github.com/user-attachments/assets/a5a93016-b2fd-4b50-9c06-f287335ef9c0" alt="수도권 40-50대 남성 소비항목" width="100%" />
       <p align="center"
     </td>
   </tr>
 </table>
-
 
 - 그 다음으로 소비 많았던 경기도 & 서울특별시에서 유입된
     20-30대 남성과 40-50대 남성의 소비 이력도 파악

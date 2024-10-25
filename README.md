@@ -49,14 +49,11 @@
       <p align="center"
     </td>
     <td align="center">
-      <img src="image-3.png" alt="heatmap_휴일_12" width="100%" />
+      <img src="https://github.com/user-attachments/assets/17025b0e-337c-4ec5-8da2-8a68a0fc4256" alt="휴일 시간대별 상위 유형 5개" width="100%" />
       <p align="center"
     </td>
   </tr>
 </table>
-
-![image]()
-
 
 - 평일/주말 모두 비슷한 유형 나타남
 - **서울특별시&경기도에서 유입된 20대 여성이 주 이용 고객**

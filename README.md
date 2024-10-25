@@ -233,6 +233,9 @@
 
 
 ## 4. Pain Point & Solution
+![image](https://github.com/user-attachments/assets/68a6d166-85eb-4259-9a6f-8e9a64b19c05)
+
+
 **1. 관광지 데이터를 수집한 후 크롤링**  
 **2. 전처리를 거쳐 tf-idf 행렬 생성**  
 **3. 생성된 tf-idf 행렬로 관관지들을 군집화**  

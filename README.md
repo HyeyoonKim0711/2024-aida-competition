@@ -45,7 +45,7 @@
 <table>
   <tr>
     <td align="center">
-      <img src="image-2.png" alt="heatmap_평일_12" width="100%" />
+      <img src="https://github.com/user-attachments/assets/43698d34-d037-477b-9385-7601557d6f04" alt="평일 시간대별 상위 유형 5개" width="100%" />
       <p align="center"
     </td>
     <td align="center">
@@ -54,6 +54,8 @@
     </td>
   </tr>
 </table>
+
+![image]()
 
 
 - 평일/주말 모두 비슷한 유형 나타남

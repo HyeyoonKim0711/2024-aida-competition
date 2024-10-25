@@ -1,4 +1,4 @@
-# 대전 중구 지역경제 활성화를 위한 성심당 방문객 행선지 추천시스템
+![image](https://github.com/user-attachments/assets/c63aeb4c-4045-4314-808c-6ea06e9ca403)# 대전 중구 지역경제 활성화를 위한 성심당 방문객 행선지 추천시스템
 ## 1. 분석 배경
 
 
@@ -202,7 +202,7 @@
 
 ### 5.3 블로그 글 전처리
 
-<img src="https://github.com/user-attachments/assets/ed1f0d78-e360-4a46-b9f6-71a86d3bafcd" height="200"/>
+<img src="https://github.com/user-attachments/assets/b1a4763a-451e-4547-8fd6-a9a3e867a1fd" height="200"/>
 
 - 블로그의 글을 가지고 군집화를 하기 전 단어의 출현빈도나 관계를 파악하기 위해 토큰화 진행
 

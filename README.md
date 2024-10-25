@@ -18,9 +18,12 @@
 
 
 ### 2.1 데이터를 이용한 성심당 방문객 추출
+
 #### "Cell Id별/업종별 가맹점 실적정보.csv"로 부터 성심당 매장 정보 추출
+
 - 업종 소분류명에 '빵' 혹은 '제과'라는 단어가 있는 가맹점만 추출 
 - 다수의 ‘기준일자’에 대해 cell_id가 **‘다바93a14a’**, 업종소분류가 **‘제과점업(I56191)’** 인 가맹점의 이용건수가 가장 많음을 확인
+
 #### "지역별 업종 유입고객 및 상권특성 정보.csv"로 부터 성심당 방문객 정보 추출 
 - 행정동_상권 : 30140535(은행선화동)
 - 업종소분류 : I56191
@@ -31,21 +34,47 @@
 
 두 카드매출 데이터로부터 성심당 방문객을 추출하였고, 이 정보를 담은 데이터프레임을 "sungsim_card.csv"파일로 저장
 
+
 ### 2.2 성심당 방문객들의 이동경로 분석을 위한 데이터 생성 과정
+
 1. 가맹점 실적정보 데이터로부터 이용건수와 이용금액이 높은 2024년 5월 데이터만 시각화 대상으로 선택
-    - 효과적으로 시각화하기 위해 1년 데이터 전부를 시각화하기보다 이용건수의 합과 이용금액의 합이 동시에 가장 높은 5월만 선택\
-    ![스크린샷 2024-10-25 214405](https://github.com/user-attachments/assets/2b2f7d74-6043-4413-98ef-683b74a44082)
-    \<이용건수의 합\>
-    ![스크린샷 2024-10-25 214451](https://github.com/user-attachments/assets/fc7c902c-7bd4-4608-8608-a61ca2c5d19d)
-    \<이용금액의 합\>
+    - 효과적으로 시각화하기 위해 1년 데이터 전부를 시각화하기보다 이용건수의 합과 이용금액의 합이 동시에 가장 높은 5월만 선택
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/2b2f7d74-6043-4413-98ef-683b74a44082" alt="스크린샷 2024-10-25 214405" />
+      <p align="center">
+      <이용건수의 합>
+      </p>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/fc7c902c-7bd4-4608-8608-a61ca2c5d19d" alt="스크린샷 2024-10-25 214451" />
+      <p align="center">
+      <이용금액의 합>
+      </p>
+    </td>
+  </tr>
+</table>
 
 
 2. 성심당에서 가장 많은 소비를 한 20대 여성을 시각화 대상으로 선택
     - 지역별 업종 유입고객 데이터로부터 5월에 20대 여성이 성심당에서 이용건수의 합과 이용금액의 합이 가장 높은 것을 확인\
-    ![스크린샷 2024-10-25 214813](https://github.com/user-attachments/assets/a12828ce-5c28-42be-b31c-1ab13a95ceca)
-    \<5월 이용건수의 합 상위 3개월\>
-    ![스크린샷 2024-10-25 214840](https://github.com/user-attachments/assets/9481ee90-4f0b-4e4b-907e-5361fdf4a768)
-    \<5월 이용금액의 합 상위 3개월\>
+    <table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/a12828ce-5c28-42be-b31c-1ab13a95ceca" alt="스크린샷 2024-10-25 214813" />
+      <p align="center">
+      <5월 이용건수의 합 상위 3개월>
+      </p>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/9481ee90-4f0b-4e4b-907e-5361fdf4a768" alt="스크린샷 2024-10-25 214840" />
+      <p align="center">
+      <5월 이용금액의 합 상위 3개월>
+      </p>
+    </td>
+  </tr>
+</table>
 
 
 3. 유동인구 대표값으로 중앙값(Median)사용
@@ -60,22 +89,65 @@
     - 유동인구의 ‘x좌표’, ‘y좌표’를 WGS84 좌표계로 변환하여 ‘latitude’, ‘longitude’ 변수 생성
     - 유동인구 데이터의 변수 중에서 ‘셀번호’, ‘x좌표’, ‘y좌표’, ‘시간대’, ‘행정동코드’, ‘일자’, ‘holiday’, ‘여성_20대’ 만 선택\
 
+
 =>이 과정을 거쳐 만들어진 최종 데이터를 **"final_pop_may_20.csv"** 파일로 저장하였고, 이 데이터를 **유동인구 시각화** 하는데 사용함
 
-### 2.3 성심당 방문객들의 이동경로 시각화
+
+### 2.3 성심당 방문객들의 이동경로 시각화 및 분석
+
+#### 시각화 
 - final_pop_may_20의 데이터의 값을 평일과 휴일로 나누어 시간대별로 변화하는 히트맵을 지도 위에 나타냄
 - 행정동 파악을 쉽게 하기 위해 대전 중구 지역의 행정구역도를 표시함
 - 유동인구 변화하는 히트맵을 gif 파일로 저장하였으나 용량이 커 figures 폴더에 첨부함 
-![heatmap_평일_12](https://github.com/user-attachments/assets/03d266dc-5f2a-497b-ab75-8c48263ddbd6)
-\<평일 12시 유동인구\>
-![heatmap_휴일_12](https://github.com/user-attachments/assets/cd987530-9b72-4d09-b250-bbb6729d14a0)
-\<휴일 12시 유동인구\>
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/03d266dc-5f2a-497b-ab75-8c48263ddbd6" alt="heatmap_평일_12" />
+      <p align="center">
+      <평일 12시 유동인구>
+      </p>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/cd987530-9b72-4d09-b250-bbb6729d14a0" alt="heatmap_휴일_12" />
+      <p align="center">
+      <휴일 12시 유동인구>
+      </p>
+    </td>
+  </tr>
+</table>
+
+
 - 시각화한 결과를 더 상세히 파악하기 위해
  **각 시간대마다 유동인구가 높은 5개의 cell**만을 추출하여 다시 시각화
-![heatmap_top5_평일_12](https://github.com/user-attachments/assets/8e89349d-9ed8-419e-8cb7-786170d3ce1f)
-\<평일 12시 상위 5개 cell의 유동인구\>
-![heatmap_top5_휴일_12](https://github.com/user-attachments/assets/7024a0e8-5c51-4d9b-903a-e0233da420b2)
-\<휴일 12시 상위 5개 cell의 유동인구\>
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/8e89349d-9ed8-419e-8cb7-786170d3ce1f" alt="heatmap_top5_평일_12" />
+      <p align="center">
+      <평일 12시, 상위 5개 cell의 유동인구>
+      </p>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/7024a0e8-5c51-4d9b-903a-e0233da420b2" alt="heatmap_top5_휴일_12" />
+      <p align="center">
+      <휴일 12시, 상위 5개 cell의 유동인구>
+      </p>
+    </td>
+  </tr>
+</table>
+
+#### 20대 여성의 유동인구 변화
+##### 평일
+- 서대전 네거리가 위치한 '문화1동'은 대전 중구의 교통 중심으로 모든 시간대에 유동인구가 높음 
+- 9시 ~ 19시 시간대에는 성심당 근처의 '은행선화동'에서 유동인구가 가장 높음
+- 19시-21시 한화이글스파크가 위치한 '부사동'에서도 유동인구가 높음
+- 20시부터는 '은행선화동' 중심의 유동인구가 '대흥동'으로 이동
+##### 휴일
+- 8시 ~ 14시, 19시 ~ 20시 시간대에 서대전역이 위치한 '류동'에 유동인구가 높음 
+- 평일과 유사하게 서대전 네거리가 위치한 
+'문화1동'에서 모든 시간대에 유동인구가 높음 
+- 9시 ~ 22시 시간대에  성심당 본점이 위치한 '은행선화동'에서 유동인구가 계속 높음
+- '대흥동'에서도 모든 시간대에 유동인구가 높음
 
 
 ## 4. Pain Point & Solution

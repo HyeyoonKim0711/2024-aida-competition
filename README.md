@@ -95,8 +95,7 @@
 대전 중구에 위치한 관광지들을 파악하기 위해 한국관광 데이터랩 사이트에서 대전 중구의 중심 관광지명들을 파일로 수집 (대전_관광지_수정(36행).csv)
 
 출처: https://datalab.visitkorea.or.kr/datalab/portal/loc/getAreaDataForm.do#
-
-![image](https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784)
+![image](https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784){: width="50%" height="50%"}
 
 - 받아온 관광지명들 중 모텔과 호텔, 위치를 특정하기 어려운 관광지, 기간이 한정적인 축제를 제외한 34개의 관광지를 가지고 네이버 블로그 크롤링
   

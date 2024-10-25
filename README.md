@@ -165,14 +165,14 @@
 
 기존의 구분은 관광지의 성격만 나타낼 뿐 관광객들이 느끼는 감정과 감성을 반영하고 있지 않음  
 ➡️ 크롤링을 통해 관광객들이 생각하는 관광지의 감상과 느낌 추출 & 더 세부적인 테마나 감성적인 카테고리 도출 가능
-![image](https://github.com/user-attachments/assets/fd9b0684-ac50-4e24-b450-c10c125179d6)
+<img src="https://github.com/user-attachments/assets/fd9b0684-ac50-4e24-b450-c10c125179d6" height="200"/>
 
 ## 5. 관광지 추천 시스템 구현
 ### 5.1 관광지 데이터 수집
 대전 중구에 위치한 관광지들을 파악하기 위해 한국관광 데이터랩 사이트에서 대전 중구의 중심 관광지명들을 파일로 수집 (대전_관광지_수정(36행).csv)
 
 출처: https://datalab.visitkorea.or.kr/datalab/portal/loc/getAreaDataForm.do#
-![image](https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784){: width="50%" height="50%"}
+<img src="https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784" height="200"/>
 
 - 받아온 관광지명들 중 모텔과 호텔, 위치를 특정하기 어려운 관광지, 기간이 한정적인 축제를 제외한 34개의 관광지를 가지고 네이버 블로그 크롤링
   
@@ -182,7 +182,8 @@
 
 ### 5.2 블로그 크롤링
 
-![image](https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68)
+<img src="https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68" height="200"/>  
+
 - 2020년 이후의 블로그 글만 크롤링
   
 - 하나의 블로그에 여러 관광지들에 대한 리뷰가 같이 있는 경우가 많은 ‘여행’ 과 ‘코스’ 키워드를 제외
@@ -196,7 +197,9 @@
 **⇒ 34개 관광지에 대해 50개씩, 총 1700개의 블로그 크롤링 (blog.csv)**
 
 ### 5.3 블로그 글 전처리
-![image](https://github.com/user-attachments/assets/ed1f0d78-e360-4a46-b9f6-71a86d3bafcd)
+
+<img src="https://github.com/user-attachments/assets/ed1f0d78-e360-4a46-b9f6-71a86d3bafcd" height="200"/>
+
 - 블로그의 글을 가지고 군집화를 하기 전 단어의 출현빈도나 관계를 파악하기 위해 토큰화 진행
 
 - 한국어는 조사와 어미가 붙기 때문에 영어와 달리 단순 띄어쓰기로는 토큰화가 어려움
@@ -205,5 +208,4 @@
 
 - 각 관광지별로 50개의 블로그글을 하나의 문장으로 합친 후 관광지의 성격을 나타낼 수 있는 형태소인 명사와 동사, 형용사만 추출
 
-
-![image](https://github.com/user-attachments/assets/a9290445-e284-467a-88a6-a8224ac9de67)
+<img src="https://github.com/user-attachments/assets/a9290445-e284-467a-88a6-a8224ac9de67" height="200"/>

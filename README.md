@@ -290,6 +290,7 @@
 
 - 따라서 Okt(Open Korea Text)로 형태소를 분리한 후 토큰화를 진행
 
-- 각 관광지별로 50개의 블로그글을 하나의 문장으로 합친 후 관광지의 성격을 나타낼 수 있는 형태소인 명사와 동사, 형용사만 추출
+- 각 관광지별로 50개의 블로그글을 하나의 문장으로 합친 후 관광지의 성격을 나타낼 수 있는 형태소인 명사와 동사, 형용사만 추출  
+<br>
 
-<img src="https://github.com/user-attachments/assets/a9290445-e284-467a-88a6-a8224ac9de67" height="350"/>
+<img src="https://github.com/user-attachments/assets/d885fd57-a5ee-4ac5-ac0a-68044b66ea68" height="350"/>

@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/c63aeb4c-4045-4314-808c-6ea06e9ca403)# 대전 중구 지역경제 활성화를 위한 성심당 방문객 행선지 추천시스템
+
 # 대전 중구 지역경제 활성화를 위한 성심당 방문객 행선지 추천 시스템
 소비패턴 분석과 크롤링을 바탕으로
 
@@ -245,7 +245,7 @@
 
 기존의 구분은 관광지의 성격만 나타낼 뿐 관광객들이 느끼는 감정과 감성을 반영하고 있지 않음  
 ➡️ 크롤링을 통해 관광객들이 생각하는 관광지의 감상과 느낌 추출 & 더 세부적인 테마나 감성적인 카테고리 도출 가능
-<img src="https://github.com/user-attachments/assets/fd9b0684-ac50-4e24-b450-c10c125179d6" height="200"/>  
+<img src="https://github.com/user-attachments/assets/fd9b0684-ac50-4e24-b450-c10c125179d6" width="1000"/>  
 <br>
 
 ## 5. 관광지 추천 시스템 구현
@@ -254,7 +254,7 @@
 
 출처: https://datalab.visitkorea.or.kr/datalab/portal/loc/getAreaDataForm.do#
 
-<img src="https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784" height="300"/>
+<img src="https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784" width="600"/>
 
 - 받아온 관광지명들 중 모텔과 호텔, 위치를 특정하기 어려운 관광지, 기간이 한정적인 축제를 제외한 34개의 관광지를 가지고 네이버 블로그 크롤링
   
@@ -265,7 +265,7 @@
 
 ### 5.2 블로그 크롤링
 
-<img src="https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68" height="400"/>  
+<img src="https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68" width="600"/>  
 
 - 2020년 이후의 블로그 글만 크롤링
   
@@ -282,7 +282,7 @@
 
 ### 5.3 블로그 글 전처리
 
-<img src="https://github.com/user-attachments/assets/b1a4763a-451e-4547-8fd6-a9a3e867a1fd" height="200"/>
+<img src="https://github.com/user-attachments/assets/b1a4763a-451e-4547-8fd6-a9a3e867a1fd" width="1000"/>
 
 - 블로그의 글을 가지고 군집화를 하기 전 단어의 출현빈도나 관계를 파악하기 위해 토큰화 진행
 
@@ -293,4 +293,51 @@
 - 각 관광지별로 50개의 블로그글을 하나의 문장으로 합친 후 관광지의 성격을 나타낼 수 있는 형태소인 명사와 동사, 형용사만 추출  
 <br>
 
-<img src="https://github.com/user-attachments/assets/d885fd57-a5ee-4ac5-ac0a-68044b66ea68" height="350"/>
+<img src="https://github.com/user-attachments/assets/d885fd57-a5ee-4ac5-ac0a-68044b66ea68" width="800"/>  
+
+- 관광지명들을 불용어 사전에 넣어 제거
+
+- 추출한 명사, 동사, 형용사 중에서 의미가 별로 없는 단어들을 불용어 사전에 넣어 제거  
+<br>
+
+### 5.4 군집분석
+
+<img src="https://github.com/user-attachments/assets/932aea59-c0db-4c0d-9a85-5fbfaa5cacf9" width="900"/>
+
+- 파이썬의 TfidfVectorizer함수를 이용해 전처리된 관광지별 블로그글을 가지고 **tf-idf행렬**을 생성
+
+- 생성된 tf-idf행렬을 이용해 **K-Means 군집분석**을 수행  
+<br> <br>
+
+<img src="https://github.com/user-attachments/assets/1aa8daae-5355-4dab-86ab-19a49deccad1" width="800"/>
+
+- 적절한 군집 수를 결정하기  위해 **Elbow Method**로 그래프 생성
+
+- 군집 간 거리의 합을 나타내는 inertia 값이 급격히 떨어지며 꺾이는 5를 군집의 숫자로 결정  
+<br> <br>
+
+<img src="https://github.com/user-attachments/assets/03752f2d-4293-44cf-9690-6a59d353e580" width="800"/>
+
+- 결정된 군집의 수를 토대로 K=5인 K-Means 군집화를 수행
+
+- tf-idf행렬을 PCA(주성분분석)을 통해 2차원과 3차원으로 차원축소를 한 후 군집들을 시각화  
+<br> <br>
+
+**각 군집에 포함된 관광지 확인**
+
+<img src="https://github.com/user-attachments/assets/d410b518-ea51-46ec-a2c7-984febe24cec" width="1000"/>  
+
+<br> <br>
+
+**각 군집의 속성을 파악하기 위해 군집별로 빈도수가 많은 단어들 확인**
+
+<img src="https://github.com/user-attachments/assets/cf914dd9-3a2b-4bbf-aff5-04c7983ffc5c" width="1000"/>  
+
+<br> <br>
+
+**군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
+
+<img src="https://github.com/user-attachments/assets/4eddee2c-df07-44b7-b05e-dd592b2f4a2b" width="1000"/>  
+<br>
+
+### 5.5 관광지 추천 시스템

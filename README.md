@@ -338,6 +338,25 @@
 **군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
 
 <img src="https://github.com/user-attachments/assets/4eddee2c-df07-44b7-b05e-dd592b2f4a2b" width="1000"/>  
+
 <br>
 
 ### 5.5 관광지 추천 시스템
+
+<img src="https://github.com/user-attachments/assets/2962c452-856f-4cda-a145-9375eacb66a3" width="1000"/> 
+
+- 각 관광지의 위치파악 후 관광지를 중심으로 반경 100m 내의 유동인구 데이터 셀들의 합을 집계
+
+- 계절_성별_나이_평일/휴일_시간대 별로 각 관광지별 유동인구의 median 산출 (final_1023.csv)  
+<br> <br>
+
+![Animation](https://github.com/user-attachments/assets/5083c8c9-29c3-4f9e-b810-07efce30cb6a)
+
+- 파이썬의 Dash 라이브러리를 이용
+
+- 사용자에게서 성별, 연령, 시간대와 방문하려는 날짜를 입력받음
+
+- 생성한 데이터(final_1023.csv)에서 군집별로 해당 성별, 연령, 시간대, 계절, 휴일평일 여부에 유동인구가 많은 관광지 2개씩 추천해주는 대시보드 생성  
+<br>
+
+## 6. 결론

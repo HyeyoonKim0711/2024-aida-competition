@@ -446,7 +446,7 @@ popdata_combined_spring['time_period'] = popdata_combined_spring['시간대'].ap
 **(해당 예시는 봄(2023년 3월, 2024년 4월, 2024년 5월) 관광지별 반경 100m 유동인구 데이터)**
 - 유동인구 데이터의 일자 변수를 이용하여 평일이면 '평일', 주말 또는 공휴일이면 '휴일'로 구분하는 holiday 변수 생성
 - 카드 데이터와 시간대를 맞추기 위해 'time_period' 변수 새롭게 생성
-  <br>**오전:6시-10시, 점심:11시~14시, 오후:15~17시, 저녁:18~21시, 심야:22시~5시**
+  <br>**오전:6시-10시, 점심:11시-14시, 오후:15-17시, 저녁:18-21시, 심야:22시-5시**
 
 
 <br>
@@ -523,7 +523,7 @@ final_result_wide_spring = create_wide_format(final_result_spring)
 final_result_wide_spring.rename(columns=lambda x: '봄_' + x if x != '관광지명' else x, inplace=True)
 ```
 - 변수명을 '계절_휴일여부_시간대_성별_나이' 로 변경
-- 봄, 여름(2023년 7~8월, 2024년 6월), 가을(2023년 9~11월), 겨울(2023년 12월, 2024년 1~2월)에 대해 각각 위와 같은 방식으로 유동인구 데이터셋 생성
+- 봄, 여름(2023년 7-8월, 2024년 6월), 가을(2023년 9-11월), 겨울(2023년 12월, 2024년 1-2월)에 대해 각각 위와 같은 방식으로 유동인구 데이터셋 생성
   <br> 'final_result_spring.csv', 'final_result_summer.csv', 'final_result_fall.csv', 'final_result_winter.csv'
 
 <br>

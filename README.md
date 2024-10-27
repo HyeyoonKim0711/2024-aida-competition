@@ -434,12 +434,7 @@ if __name__ == '__main__':
 
 **사용 데이터셋**  
 
-- 유동인구 데이터
-- 카드데이터 (cell id별, 지역별 업종 유입고객)
-- 업종코드(통계청 표준산업분류10차)
-- 빈격자(500).shp (국토지리정보원)
-- 도로명주소 제공 행정구역 shp파일 (emd.shp)  
-  (출처: http://www.gisdeveloper.co.kr/?p=2332)
+- 네이버 블로그 전문 크롤링 사용
 - 한국관광 데이터랩 대전 관광지 데이터셋 (대전_관광지.csv)  
   (출처: https://datalab.visitkorea.or.kr/datalab/portal)  
 <br>

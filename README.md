@@ -276,7 +276,11 @@ driver.implicitly_wait(3)
 # Naver API key 입력
 client_id = 'Xn3Yn**********ce2w3' 
 client_secret = '*******_lM'
+```
+- naver api key를 발급받아 client_id와 client_secret에 입력
+<br>
 
+```ruby
 naver_urls = []
 postdate = []
 titles = []

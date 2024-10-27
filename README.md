@@ -263,6 +263,80 @@
 
 ### 5.2 블로그 크롤링
 
+```ruby
+# 웹 드라이버 설정
+options = webdriver.ChromeOptions()
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option("useAutomationExtension", False)
+
+# 버전에 상관 없이 os에 설치된 크롬 브라우저 사용
+driver = webdriver.Chrome()
+driver.implicitly_wait(3)
+
+# Naver API key 입력
+client_id = 'Xn3Yn**********ce2w3' 
+client_secret = '*******_lM'
+
+naver_urls = []
+postdate = []
+titles = []
+data = []
+place = []
+
+# 기준 날짜를 2020년 1월 1일로 설정
+filter_date = '20200101'
+
+for name in place_names:
+    # 검색어 입력 (대전 반드시 포함 / 제외 단어 필터링)
+    encText = urllib.parse.quote(f"{name} + 대전 -부동산 -월세 -전세 -분양 -주택 -공주 -주차장 -코스 -여행")
+
+    # 검색을 끝낼 페이지 입력
+    end = 6
+    # 한번에 가져올 페이지 입력
+    display = 100
+
+    count = 0
+    for start in range(end):
+        url = "https://openapi.naver.com/v1/search/blog?query=" + encText + "&start=" + str(start+1) + "&display=" + str(display) # JSON 결과
+        request = urllib.request.Request(url)
+        request.add_header("X-Naver-Client-Id", client_id)
+        request.add_header("X-Naver-Client-Secret", client_secret)
+        response = urllib.request.urlopen(request)
+        rescode = response.getcode()
+    
+        if rescode == 200:
+            response_body = response.read()
+            crawling = json.loads(response_body.decode('utf-8'))['items']
+    
+            for row in crawling:
+                post_date = row['postdate']
+                if post_date >= filter_date and 'blog.naver' in row['link']:
+                    row['place'] = name
+                    naver_urls.append(row['link'])
+                    postdate.append(post_date)
+                    place.append(name)
+                
+                    # html태그 제거
+                    title = row['title']
+                    pattern1 = '<[^>]*>'
+                    title = re.sub(pattern=pattern1, repl='', string=title)
+                    titles.append(title)
+                
+                    data.append(row)
+                    count += 1  # 조건에 맞는 게시물 카운트 증가
+                
+                    if count >= 50:  # 50개를 넘기지 않도록 제한
+                        break
+            
+            if count >= 50:
+                break
+            time.sleep(2)  # API 호출 간 딜레이
+        else:
+            print("Error Code:" + str(rescode))
+
+    print(f"{name}, {count}개 크롤링 완료")
+```
+
 <img src="https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68" width="600"/>  
 
 - 2020년 이후의 블로그 글만 크롤링

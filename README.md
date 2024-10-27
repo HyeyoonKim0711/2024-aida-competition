@@ -36,20 +36,13 @@
 
 ## 3. 관광지 추천 시스템 구현
 ### 3.1 관광지 데이터 수집
-대전 중구에 위치한 관광지들을 파악하기 위해 한국관광 데이터랩 사이트에서 대전 중구의 중심 관광지명들을 파일로 수집 (대전_관광지_수정(36행).csv)
+대전 중구에 위치한 관광지들을 파악하기 위해 한국관광 데이터랩 사이트에서 대전 중구의 중심 관광지명들을 파일로 수집 (대전_관광지_수정.csv)
 
-출처: https://datalab.visitkorea.or.kr/datalab/portal/loc/getAreaDataForm.do#
+출처: https://datalab.visitkorea.or.kr/datalab/portal/loc/getAreaDataForm.do#  
 
-<img src="https://github.com/user-attachments/assets/23512b99-fec3-42c3-959b-0b86ed0b7784" width="600"/>
-
-- 받아온 관광지명들 중 모텔과 호텔, 위치를 특정하기 어려운 관광지, 기간이 한정적인 축제를 제외한 34개의 관광지를 가지고 네이버 블로그 크롤링
-- 보문산 공원, 보문산 숲속공연장, 대전오월드 버드랜드와 같은 부속시설들은 보문산, 대전오월드 같은 상위시설로 합쳐서 크롤링
-- 우리들공원, 대전오월드, 한화생명이글스파크 ...
 <br>
 
 ### 3.2 블로그 크롤링
-
-<img src="https://github.com/user-attachments/assets/c581bd01-0b0e-4153-8622-39f097c09f68" width="600"/>  
 
 - 2020년 이후의 블로그 글만 크롤링
 - 하나의 블로그에 여러 관광지들에 대한 리뷰가 같이 있는 경우가 많은 ‘여행’ 과 ‘코스’ 키워드를 제외
@@ -62,18 +55,8 @@
 
 ### 3.3 블로그 글 전처리
 
-<img src="https://github.com/user-attachments/assets/b1a4763a-451e-4547-8fd6-a9a3e867a1fd" width="1000"/>
-
-- 블로그의 글을 가지고 군집화를 하기 전 단어의 출현빈도나 관계를 파악하기 위해 토큰화 진행
-- 한국어는 조사와 어미가 붙기 때문에 영어와 달리 단순 띄어쓰기로는 토큰화가 어려움
-- 따라서 Okt(Open Korea Text)로 형태소를 분리한 후 토큰화를 진행
-- 각 관광지별로 50개의 블로그글을 하나의 문장으로 합친 후 관광지의 성격을 나타낼 수 있는 형태소인 명사와 동사, 형용사만 추출  
-<br>
-
-<img src="https://github.com/user-attachments/assets/d885fd57-a5ee-4ac5-ac0a-68044b66ea68" width="800"/>  
-
-- 관광지명들을 불용어 사전에 넣어 제거
-- 추출한 명사, 동사, 형용사 중에서 의미가 별로 없는 단어들을 불용어 사전에 넣어 제거  
+- 블로그의 글을 가지고 군집화를 하기 전 단어의 출현빈도나 관계를 파악하기 위해 토큰화 진행  
+- 불필요한 단어들을 불용어 사전에 넣어 제거 
 <br>
 
 ### 3.4 군집분석
@@ -91,11 +74,7 @@ scaler = MinMaxScaler()
 tfidf_scaled = scaler.fit_transform(tfidf_df)
 ```
 - 파이썬의 TfidfVectorizer함수를 이용해 전처리된 관광지별 블로그글을 가지고 **tf-idf행렬**을 생성
-- 생성된 tf-idf행렬을 이용해 **K-Means 군집분석**을 수행
-<br>
-
-<img src="https://github.com/user-attachments/assets/932aea59-c0db-4c0d-9a85-5fbfaa5cacf9" width="900"/>
-
+- 생성된 tf-idf행렬을 이용해 **K-Means 군집분석**을 수행  
 <br> <br>
 
 ```ruby
@@ -250,7 +229,7 @@ for cluster, top_words in top_words_by_cluster.items():
 <br>
 
 **⇒ 군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
-<br>
+<br> <br>
 
 ### 3.5 관광지 추천 시스템
 
@@ -416,8 +395,6 @@ if __name__ == '__main__':
 
 **활용 방안**  
 
-<img src="https://github.com/user-attachments/assets/a574685d-defa-4539-9ce4-8850c998e04d" width="600"/> 
-
 - 성심당 대기줄 사이에 추천시스템과 연결한 QR코드 포스터 부착
 - 관광객들이 성심당 줄을 기다리면서 대전 중구 관광지에 흥미를 가질 수 있도록 함  
 <br>
@@ -442,3 +419,10 @@ if __name__ == '__main__':
 **라이브러리**
 
 <img src="https://github.com/user-attachments/assets/774e618f-8eb2-408a-8287-5c988e24ad35" width="500"/> 
+<br>
+
+## 6. 모델 실행 환경
+
+- **프로세서**: Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz   1.80 GHz
+- **RAM**: 24.0GB
+- **시스템**: 64비트 운영 체제, x64 기반 프로세서

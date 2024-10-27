@@ -360,6 +360,59 @@ plt.show()
 - 군집 간 거리의 합을 나타내는 inertia 값이 급격히 떨어지며 꺾이는 5를 군집의 숫자로 결정  
 <br> <br>
 
+```ruby
+k = 5
+kmeans = KMeans(n_clusters=k, random_state=3)
+kmeans.fit(tfidf_df)
+
+blog_df['cluster'] = kmeans.labels_
+tfidf_cluster = tfidf_df.copy()
+tfidf_cluster['cluster'] = kmeans.labels_
+tfidf_scaled['cluster'] = kmeans.labels_
+
+# 2D PCA 수행
+pca_2d = PCA(n_components=2)
+pca_result_2d = pca_2d.fit_transform(tfidf_scaled)
+
+# 3D PCA 수행
+pca_3d = PCA(n_components=3)
+pca_result_3d = pca_3d.fit_transform(tfidf_scaled)
+
+# 플롯 설정
+fig = plt.figure(figsize=(16, 7))
+
+# 2D PCA 서브플롯
+ax1 = fig.add_subplot(121)  # 1행 2열 첫 번째 플롯
+unique_clusters = set(tfidf_cluster['cluster'])
+for cluster in unique_clusters:
+    cluster_points = pca_result_2d[tfidf_cluster['cluster'] == cluster]
+    ax1.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f'Cluster {cluster}', s=50, alpha=0.7)
+
+# 2D 플롯 설정
+ax1.set_title("2D PCA Plot of TF-IDF Data by Cluster")
+ax1.set_xlabel("Principal Component 1")
+ax1.set_ylabel("Principal Component 2")
+ax1.legend()
+ax1.grid(True)
+
+# 3D PCA 서브플롯
+ax2 = fig.add_subplot(122, projection='3d')  # 1행 2열 두 번째 플롯 (3D)
+for cluster in unique_clusters:
+    cluster_points = pca_result_3d[tfidf_cluster['cluster'] == cluster]
+    ax2.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2], label=f'Cluster {cluster}', s=50, alpha=0.7)
+
+# 3D 플롯 설정
+ax2.set_title("3D PCA Plot of TF-IDF Data by Cluster")
+ax2.set_xlabel("Principal Component 1")
+ax2.set_ylabel("Principal Component 2")
+ax2.set_zlabel("Principal Component 3")
+ax2.legend()
+
+# 전체 레이아웃 조정
+plt.tight_layout()
+plt.show()
+```
+
 <img src="https://github.com/user-attachments/assets/03752f2d-4293-44cf-9690-6a59d353e580" width="800"/>
 
 - 결정된 군집의 수를 토대로 K=5인 K-Means 군집화를 수행
@@ -368,11 +421,43 @@ plt.show()
 
 **각 군집에 포함된 관광지 확인**
 
+```ruby
+cluster_places = blog_df.groupby('cluster')['place'].apply(list).reset_index()
+pd.set_option('display.max_colwidth', None)
+cluster_places[['place']]
+```
+
 <img src="https://github.com/user-attachments/assets/d410b518-ea51-46ec-a2c7-984febe24cec" width="1000"/>  
 
 <br> <br>
 
 **각 군집의 속성을 파악하기 위해 군집별로 빈도수가 많은 단어들 확인**
+
+```ruby
+# 클러스터별로 많이 나온 단어 추출
+def extract_top_words_by_cluster(df, num_words=100):
+    cluster_top_words = {}
+
+    for cluster, group in df.groupby('cluster'):
+        all_adjectives = ' '.join(group['token'].tolist())
+        words = all_adjectives.split() 
+
+        # 단어 빈도 계산
+        word_counts = Counter(words)
+        # 가장 많이 나온 단어 num_words개 추출
+        top_words = word_counts.most_common(num_words)
+        # 클러스터별로 저장
+        cluster_top_words[cluster] = top_words
+
+    return cluster_top_words
+
+# 결과 추출
+top_words_by_cluster = extract_top_words_by_cluster(blog_df)
+
+# 클러스터별 상위 10개 단어 출력
+for cluster, top_words in top_words_by_cluster.items():
+    print(f"Cluster {cluster}: {top_words}")
+```
 
 <img src="https://github.com/user-attachments/assets/cf914dd9-3a2b-4bbf-aff5-04c7983ffc5c" width="1000"/>  
 

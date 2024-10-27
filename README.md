@@ -231,7 +231,321 @@ for cluster, top_words in top_words_by_cluster.items():
 **⇒ 군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
 <br> <br>
 
-### 3.5 관광지 추천 시스템
+### 3.5 관광지별 유동인구 데이터 생성
+
+```ruby
+# pop_data에서 'pop202307'부터 'pop202406'까지의 데이터프레임 이름 가져오기
+pop_dfs = [f"pop20230{i}" for i in range(7, 10)] + [f"pop20240{i}" for i in range(1, 7)]
+
+# 각 데이터프레임에서 열을 가져오고, 셀번호 중복 행을 제거한 후 합치기
+combined_df = pd.DataFrame()
+
+for df_name in pop_dfs:
+    # pop_data에서 데이터프레임을 가져오기
+    df = pop_data[df_name]
+    
+    # 열 선택 및 중복된 셀번호 행 제거
+    df_filtered = df[['셀번호', 'x좌표', 'y좌표', "행정동코드"]].drop_duplicates(subset='셀번호')
+    
+    # 합치기
+    combined_df = pd.concat([combined_df, df_filtered], ignore_index=True)
+
+# 최종 합친 데이터프레임에서 셀번호 중복 행 다시 제거
+final_df = combined_df.drop_duplicates(subset='셀번호')
+final_df = final_df.merge(hdong[['행정동코드', "읍면동명"]], how="left", left_on="행정동코드", right_on="행정동코드")
+final_df = final_df.drop_duplicates(subset='셀번호').reset_index()
+final_df.to_csv("cell.csv", index=False)
+```
+- 유동인구 데이터 내에 존재하는 모든 cell들의 x좌표와 y좌표를 구하기 위해 데이터를 합침
+- cell 정보 데이터는 'cell.csv'로 저장
+ 
+<br>
+
+```ruby
+from geopy.distance import geodesic
+import pandas as pd
+import numpy as np
+import folium
+from tqdm import tqdm
+from pyproj import Proj, Transformer
+
+tqdm.pandas()  # pandas의 tqdm 확장 활성화
+
+# KATEC 좌표계와 WGS84 좌표계 정의
+WGS84 = {'proj': 'latlong', 'datum': 'WGS84', 'ellps': 'WGS84'}
+KATEC = {'proj': 'tmerc', 'lat_0': '38N', 'lon_0': '128E', 
+         'ellps': 'bessel', 'x_0': 400000, 'y_0': 600000,
+         'k': 0.9999, 'units': 'm',
+         'towgs84': '-115.80,474.99,674.11,1.16,-2.31,-1.63,6.43'}
+
+# KATEC -> WGS84 변환 함수
+def KATEC_to_wgs84(x, y):
+    transformer = Transformer.from_proj(Proj(**KATEC), Proj(**WGS84), always_xy=True)
+    lon, lat = transformer.transform(x, y)
+    return lat, lon
+
+# 좌표 변환 적용 (progress_apply를 통해 진행 바 표시)
+final_df[['latitude', 'longitude']] = final_df.progress_apply(lambda row: KATEC_to_wgs84(row['x좌표'], row['y좌표']), axis=1, result_type='expand')
+
+```
+
+- 각 관광지들과의 거리를 계산하기 위해 유동인구 데이터의 각 셀에 대해 좌표 변환
+  <br>
+  **KATEC → WG584**
+- 변환 후 해당 셀들과 대전 각 셀들과 관광지 반경 100m를 folium을 이용하여 시각화 
+
+<br>
+
+![alt text](image-9.png)
+<br>
+```ruby
+# 변환된 좌표를 지도에 표시
+m = folium.Map(location=[final_df['latitude'].mean(), final_df['longitude'].mean()], zoom_start=15)
+
+# 각 좌표에 검은 점 추가 (팝업 제거, 점 크기 조정)
+for _, row in tqdm(final_df.iterrows(), total=len(final_df)):
+    folium.CircleMarker(
+        location=[row['latitude'], row['longitude']],
+        radius=1,  # 점의 크기
+        color='black',  # 점의 색깔
+        fill=True,
+        fill_opacity=1
+    ).add_to(m)
+
+# 관광지명과 반경 100미터 표시 및 점의 개수 계산
+tourist_counts = []
+tourist_points = []  # 반경 내 점들의 셀번호를 저장할 리스트
+
+for _, row in 관광지.iterrows():
+    # 관광지명 마커 추가
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=row['관광지명']
+    ).add_to(m)
+    
+    lat = row['Latitude']
+    lon = row['Longitude']
+
+    # 반경 100미터 원 추가
+    folium.Circle(
+        location=[lat, lon],
+        radius=100,
+        color='red',
+        fill=True,
+        fill_color='red',
+        fill_opacity=0.3,
+        weight=1,
+    ).add_to(m)
+
+    # 관광지와 셀 간 거리 계산하여 반경 100미터 내 셀번호 저장
+    within_radius_cell = []
+    for _, cell_row in final_df.iterrows():
+        distance = geodesic((lat, lon), (cell_row['latitude'], cell_row['longitude'])).meters
+        if distance <= 100:
+            within_radius_cell.append(cell_row['셀번호'])  # 100m 이내의 셀번호 저장
+    
+    count = len(within_radius_cell)  # 반경 내 점의 개수
+
+    # 결과 저장
+    tourist_counts.append({'관광지명': row['관광지명'], '점 개수': count})
+    tourist_points.append({'관광지명': row['관광지명'], '셀번호': within_radius_cell})
+  
+  # 점 개수와 셀번호 데이터프레임으로 정리
+tourist_counts_df = pd.DataFrame(tourist_counts)
+tourist_points_df = pd.DataFrame(tourist_points)
+# tourist_counts_df, tourist_points_df, 관광지 세 개의 데이터프레임을 '관광지명'을 기준으로 병합
+tour = pd.merge(tourist_counts_df, tourist_points_df, on='관광지명', how='inner')
+tour = pd.merge(tour, 관광지, on='관광지명', how='inner')
+```
+- 이후 파이썬의 geopy.distance 라이브러리의 geodesic 함수를 사용해 관광지와 셀 간의 거리를 계산하여 반경 100내 셀 번호의 정보를 저장
+- 각 관광지 반경 100m 내 셀 번호와 셀 개수를 합쳐 'tour.csv'로 저장
+  
+<br>
+
+```ruby
+# pop_data 안의 각 데이터프레임에 적용할 함수
+def group_age_columns(df):
+    # 남성 연령대 그룹화
+    df['남성_10대'] = df[['남성10~14', '남성15~19']].sum(axis=1)
+    df['남성_20대'] = df[['남성20~24', '남성25~29']].sum(axis=1)
+    df['남성_30대'] = df[['남성30~34', '남성35~39']].sum(axis=1)
+    df['남성_40대'] = df[['남성40~44', '남성45~49']].sum(axis=1)
+    df['남성_50대'] = df[['남성50~54', '남성55~59']].sum(axis=1)
+    df['남성_60대'] = df[['남성60~64', '남성65~69']].sum(axis=1)
+    df['남성_70대이상'] = df[['남성70세 이상']].sum(axis=1)
+
+    # 여성 연령대 그룹화
+    df['여성_10대'] = df[['여성10~14', '여성15~19']].sum(axis=1)
+    df['여성_20대'] = df[['여성20~24', '여성25~29']].sum(axis=1)
+    df['여성_30대'] = df[['여성30~34', '여성35~39']].sum(axis=1)
+    df['여성_40대'] = df[['여성40~44', '여성45~49']].sum(axis=1)
+    df['여성_50대'] = df[['여성50~54', '여성55~59']].sum(axis=1)
+    df['여성_60대'] = df[['여성60~64', '여성65~69']].sum(axis=1)
+    df['여성_70대이상'] = df[['여성70세 이상']].sum(axis=1)
+
+    # 불필요한 원본 컬럼 삭제
+    columns_to_drop = [
+        '남성10세미만', '남성10~14', '남성15~19', '남성20~24', '남성25~29', '남성30~34', '남성35~39', 
+        '남성40~44', '남성45~49', '남성50~54', '남성55~59', '남성60~64', '남성65~69', '남성70세 이상', 
+        '여성10세미만', '여성10~14', '여성15~19', '여성20~24', '여성25~29', '여성30~34', '여성35~39', 
+        '여성40~44', '여성45~49', '여성50~54', '여성55~59', '여성60~64', '여성65~69', '여성70세 이상'
+    ]
+    df.drop(columns=columns_to_drop, inplace=True)
+
+# pop_data 안의 모든 데이터프레임에 연령대 그룹화를 적용
+pop_data_keys = ['pop202307', 'pop202308', 'pop202309', 'pop202310', 'pop202311', 'pop202312', 
+                 'pop202401', 'pop202402', 'pop202403', 'pop202404', 'pop202405', 'pop202406']
+
+for key in pop_data_keys:
+    group_age_columns(pop_data[key])
+
+# 결과 확인 (예시로 pop202307 데이터프레임 확인)
+#print(pop_data['pop202307'].head())
+```
+- 유동인구 데이터의 연령대를 카드 데이터와 맞추기 위해 위와 같이 재범주화
+
+<br>
+
+```ruby
+from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
+
+# 데이터 합치기
+popdata_combined_spring = pd.concat([pop_data['pop202403'], pop_data['pop202404'], pop_data['pop202405']], ignore_index=True)
+
+# 날짜 변수(일자)를 datetime 타입으로 변환
+popdata_combined_spring['일자'] = pd.to_datetime(popdata_combined_spring['일자'], format='%Y%m%d')
+
+# 공휴일 계산 (예시로 미국 공휴일을 사용, 한국 공휴일은 따로 처리해야 함)
+cal = calendar()
+holidays = cal.holidays(start=popdata_combined_spring['일자'].min(), end=popdata_combined_spring['일자'].max())
+
+# '휴일' 변수 생성: 토, 일요일 또는 공휴일이면 '휴일', 그렇지 않으면 '평일'
+popdata_combined_spring['holiday'] = popdata_combined_spring['일자'].apply(lambda x: '휴일' if x.weekday() >= 5 or x in holidays else '평일')
+
+# 'time_period' 변수 생성: 시간대를 오전, 점심, 오후, 저녁, 심야로 분류
+def time_to_period(hour):
+    if 6 <= hour < 11:
+        return '오전'
+    elif 11 <= hour < 15:
+        return '점심'
+    elif 15 <= hour < 18:
+        return '오후'
+    elif 18 <= hour < 22:
+        return '저녁'
+    else:
+        return '심야'
+
+# '시간대' 변수를 시간대 범주로 변환
+popdata_combined_spring['time_period'] = popdata_combined_spring['시간대'].apply(time_to_period)
+```
+**(해당 예시는 봄(2023년 3월, 2024년 4월, 2024년 5월) 관광지별 반경 100m 유동인구 데이터)**
+- 유동인구 데이터의 일자 변수를 이용하여 평일이면 '평일', 주말 또는 공휴일이면 '휴일'로 구분하는 holiday 변수 생성
+- 카드 데이터와 시간대를 맞추기 위해 'time_period' 변수 새롭게 생성
+  <br>**오전:6시-10시, 점심:11시~14시, 오후:15~17시, 저녁:18~21시, 심야:22시~5시**
+
+
+<br>
+
+```ruby
+# 필요한 남성 및 여성 연령대 컬럼
+columns_to_median = [
+    '남성_10대', '남성_20대', '남성_30대', '남성_40대', '남성_50대', '남성_60대', '남성_70대이상',
+    '여성_10대', '여성_20대', '여성_30대', '여성_40대', '여성_50대', '여성_60대', '여성_70대이상'
+]
+
+# 관광지명별로 데이터를 그룹핑하고 중앙값 계산
+result_list = []
+
+for _, row in tour.iterrows():
+    # 각 관광지명에 해당하는 셀번호 리스트
+    cell_numbers = row['셀번호']
+    
+    # popdata_combined에서 해당 셀번호들에 해당하는 데이터 필터링
+    filtered_data = popdata_combined_spring[popdata_combined_spring['셀번호'].isin(cell_numbers)]
+    
+    # 'holiday', 'time_period'별로 그룹핑하여 남녀 연령대별 인구의 중앙값 계산
+    grouped_data = filtered_data.groupby(['holiday', 'time_period'])[columns_to_median].median().reset_index()
+    
+    # 관광지명 열 추가
+    grouped_data['관광지명'] = row['관광지명']
+    
+    # 결과를 리스트에 저장
+    result_list.append(grouped_data)
+
+# 결과를 하나의 데이터프레임으로 병합
+final_result_spring = pd.concat(result_list, ignore_index=True)
+```
+- 휴일 여부, 시간대, 성별 및 나이별로 관광지 반경 100m 내의 셀에 속하는 유동인구의 median값을 구함
+
+<br>
+  
+> **median 값을 사용하는 이유**
+> ![alt text](image-10.png)
+> → 전체 유동인구 데이터의 시간대별 데이터가 어떻게 분포되어 있는지 확인 
+> <br> ⇒ skewed, 평일에는 0값이 많음.
+> <br>⇒ 여러 cell들의 대푯값으로 mean을 사용하면 분포 왜곡이 있을 것이라 판단하여 median 사용
+
+<br> <br>
+
+```ruby
+# 관광지명별로 그룹핑된 데이터를 가공하여 열 이름을 결합한 형태로 변환하는 코드
+
+# 필요한 남성 및 여성 연령대 컬럼
+columns_to_median = [
+    '남성_10대', '남성_20대', '남성_30대', '남성_40대', '남성_50대', '남성_60대', '남성_70대이상',
+    '여성_10대', '여성_20대', '여성_30대', '여성_40대', '여성_50대', '여성_60대', '여성_70대이상'
+]
+
+# 그룹핑된 데이터프레임을 넓은 형식으로 변환하는 함수
+def create_wide_format(df):
+    wide_format = df.pivot_table(
+        index='관광지명',
+        columns=['holiday', 'time_period'],
+        values=columns_to_median
+    )
+    
+    # MultiIndex를 단일 컬럼으로 변환 (열 이름을 "holiday_time_period_컬럼명" 형식으로 변환)
+    wide_format.columns = [f'{h}_{t}_{col}' for h, t, col in wide_format.columns]
+    
+    # 인덱스를 초기화하여 관광지명을 열로 변환
+    wide_format.reset_index(inplace=True)
+    
+    return wide_format
+
+# 주어진 데이터로 넓은 형식의 데이터프레임 생성
+final_result_wide_spring = create_wide_format(final_result_spring)
+final_result_wide_spring.rename(columns=lambda x: '봄_' + x if x != '관광지명' else x, inplace=True)
+```
+- 변수명을 '계절_휴일여부_시간대_성별_나이' 로 변경
+- 봄, 여름(2023년 7~8월, 2024년 6월), 가을(2023년 9~11월), 겨울(2023년 12월, 2024년 1~2월)에 대해 각각 위와 같은 방식으로 유동인구 데이터셋 생성
+  <br> 'final_result_spring.csv', 'final_result_summer.csv', 'final_result_fall.csv', 'final_result_winter.csv'
+
+<br>
+
+```ruby
+final_result_wide_spring = pd.read_csv("../data/result/final_result_spring.csv")
+final_result_wide_summer = pd.read_csv("../data/result/final_result_summer.csv")
+final_result_wide_fall = pd.read_csv("../data/result/final_result_fall.csv")
+final_result_wide_winter = pd.read_csv("../data/result/final_result_winter.csv")
+
+최종 = 관광지.merge(final_result_wide_spring, how="left", left_on="관광지명", right_on="관광지명")
+최종 = 최종.merge(final_result_wide_summer, how="left", left_on="관광지명", right_on="관광지명")
+최종 = 최종.merge(final_result_wide_fall, how="left", left_on="관광지명", right_on="관광지명")
+최종 = 최종.merge(final_result_wide_winter, how="left", left_on="관광지명", right_on="관광지명")
+
+# 유동인구가 없는 NaN 값을 0으로 채우기
+최종.fillna(0, inplace=True)
+최종.to_csv("final.csv", index=False)
+```
+- 관광지명과 각 계절의 유동인구 데이터를 합친 final.csv 데이터 생성
+
+
+
+
+
+
+
+
 
 ```ruby
 pop = pd.read_csv("../data/final.csv")
@@ -244,7 +558,10 @@ pop_cluster = pop_cluster.drop(['place'], axis=1)
 ```
 - 작업을 위해, 각 관광지의 위치파악 후 관광지를 중심으로 반경 100m 내의 유동인구 데이터 셀들의 합을 집계하고, 계절_성별_나이_평일/휴일_시간대 별로 각 관광지별 유동인구의 median 산출한 데이터 불러오기
 - 군집화된 결과를 데이터에 추가  
-<br>
+
+<br> <br>
+
+### 3.6 관광지 추천 시스템
 
 ```ruby
 # 대시보드 앱 생성

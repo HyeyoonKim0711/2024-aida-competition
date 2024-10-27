@@ -723,6 +723,8 @@ if __name__ == '__main__':
 
 **사용 데이터셋**  
 
+- 제공된 유동인구 데이터셋
+- 행정안전부 제공 행정동코드 (https://www.mois.go.kr/frt/a01/frtMain.do)
 - 네이버 블로그 전문 크롤링 사용
 - 한국관광 데이터랩 대전 관광지 데이터셋 (대전_관광지.csv)  
   (출처: https://datalab.visitkorea.or.kr/datalab/portal)  

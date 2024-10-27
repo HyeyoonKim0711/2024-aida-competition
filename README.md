@@ -292,11 +292,67 @@
 
 ### 5.4 군집분석
 
+```ruby
+vectorizer = TfidfVectorizer(max_features=300)
+tfidf_matrix = vectorizer.fit_transform(blog_df['token'])
+# 결과 출력
+pd.DataFrame(tfidf_matrix.toarray())
+word = vectorizer.get_feature_names_out()
+tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=word, index=blog_df['place'])
+
+# 표준화
+scaler = MinMaxScaler()
+tfidf_scaled = scaler.fit_transform(tfidf_df)
+```
+- 파이썬의 TfidfVectorizer함수를 이용해 전처리된 관광지별 블로그글을 가지고 **tf-idf행렬**을 생성
+- 생성된 tf-idf행렬을 이용해 **K-Means 군집분석**을 수행
+<br>
+
 <img src="https://github.com/user-attachments/assets/932aea59-c0db-4c0d-9a85-5fbfaa5cacf9" width="900"/>
 
-- 파이썬의 TfidfVectorizer함수를 이용해 전처리된 관광지별 블로그글을 가지고 **tf-idf행렬**을 생성
-- 생성된 tf-idf행렬을 이용해 **K-Means 군집분석**을 수행  
 <br> <br>
+
+```ruby
+# KMeans Inertia 계산
+ks = range(1, 10)
+inertias = []
+for k in ks:
+    model = KMeans(n_clusters=k, random_state=3)
+    model.fit(tfidf_df)
+    inertias.append(model.inertia_)
+
+# Silhouette Score 계산
+silhouette_scores = []
+cluster_range = range(2, 10)
+for n_clusters in cluster_range:
+    kmeans = KMeans(n_clusters=n_clusters, random_state=3)
+    labels = kmeans.fit_predict(tfidf_df)
+    silhouette_avg = silhouette_score(tfidf_df, labels)
+    silhouette_scores.append(silhouette_avg)
+
+# 실루엣 스코어를 배열로 변환
+scores_array = np.array(silhouette_scores).reshape(-1, 1)
+
+# 플롯 설정 (2개의 서브플롯을 하나의 화면에 배치)
+fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+# 첫 번째 플롯: ks vs inertias
+axes[0].plot(ks, inertias, '-o', color='chocolate')
+axes[0].set_xlabel('number of clusters, k')
+axes[0].set_ylabel('inertia')
+axes[0].set_title('Inertia vs Number of Clusters')
+axes[0].set_xticks(ks)
+
+# 두 번째 플롯: Silhouette Scores 히트맵
+sns.heatmap(scores_array, annot=True, cmap="YlOrBr", yticklabels=cluster_range, ax=axes[1])
+axes[1].set_ylabel('n_clusters')
+axes[1].set_xlabel('silhouette_score')
+axes[1].set_title('Silhouette Scores for different number of clusters')
+
+# 플롯 간 간격 자동 조정
+plt.tight_layout()
+plt.show()
+```
 
 <img src="https://github.com/user-attachments/assets/1aa8daae-5355-4dab-86ab-19a49deccad1" width="800"/>
 

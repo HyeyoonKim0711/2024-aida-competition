@@ -296,7 +296,7 @@ final_df[['latitude', 'longitude']] = final_df.progress_apply(lambda row: KATEC_
 
 <br>
 
-![alt text](image-9.png)
+![image](https://github.com/user-attachments/assets/b5a08936-8089-4097-97c3-e69d581a6eea)
 <br>
 ```ruby
 # 변환된 좌표를 지도에 표시
@@ -480,7 +480,8 @@ final_result_spring = pd.concat(result_list, ignore_index=True)
 <br>
   
 > **median 값을 사용하는 이유**
-> ![alt text](image-10.png)
+> ![image](https://github.com/user-attachments/assets/3e0d290a-6579-400b-8dd3-22ee8687e95d)
+
 > → 전체 유동인구 데이터의 시간대별 데이터가 어떻게 분포되어 있는지 확인 
 > <br> ⇒ skewed, 평일에는 0값이 많음.
 > <br>⇒ 여러 cell들의 대푯값으로 mean을 사용하면 분포 왜곡이 있을 것이라 판단하여 median 사용
@@ -539,13 +540,7 @@ final_result_wide_winter = pd.read_csv("../data/result/final_result_winter.csv")
 ```
 - 관광지명과 각 계절의 유동인구 데이터를 합친 final.csv 데이터 생성
 
-
-
-
-
-
-
-
+<br>
 
 ```ruby
 pop = pd.read_csv("../data/final.csv")
@@ -556,7 +551,7 @@ place_cluster.columns = ['군집', 'place']
 pop_cluster = pd.merge(pop, place_cluster, left_on='관광지명', right_on='place', how='left')
 pop_cluster = pop_cluster.drop(['place'], axis=1)
 ```
-- 작업을 위해, 각 관광지의 위치파악 후 관광지를 중심으로 반경 100m 내의 유동인구 데이터 셀들의 합을 집계하고, 계절_성별_나이_평일/휴일_시간대 별로 각 관광지별 유동인구의 median 산출한 데이터 불러오기
+- final.csv 데이터셋 불러오기
 - 군집화된 결과를 데이터에 추가  
 
 <br> <br>

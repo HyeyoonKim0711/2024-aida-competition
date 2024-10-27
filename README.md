@@ -461,27 +461,145 @@ for cluster, top_words in top_words_by_cluster.items():
 
 <img src="https://github.com/user-attachments/assets/cf914dd9-3a2b-4bbf-aff5-04c7983ffc5c" width="1000"/>  
 
-<br> <br>
+<br>
 
-**군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
-
-<img src="https://github.com/user-attachments/assets/4eddee2c-df07-44b7-b05e-dd592b2f4a2b" width="1000"/>  
-
+**⇒ 군집별 빈도수가 높은 단어를 기준으로 군집의 이름 결정**
 <br>
 
 ### 5.5 관광지 추천 시스템
 
-<img src="https://github.com/user-attachments/assets/2962c452-856f-4cda-a145-9375eacb66a3" width="1000"/> 
+```ruby
+pop = pd.read_csv("../data/final.csv")
 
-- 각 관광지의 위치파악 후 관광지를 중심으로 반경 100m 내의 유동인구 데이터 셀들의 합을 집계
-- 계절_성별_나이_평일/휴일_시간대 별로 각 관광지별 유동인구의 median 산출 (final_1023.csv)  
-<br> <br>
+place_cluster = blog_df.groupby('cluster')['place'].apply(lambda x: pd.Series(x)).reset_index(level=0)
+place_cluster.columns = ['군집', 'place']
+
+pop_cluster = pd.merge(pop, place_cluster, left_on='관광지명', right_on='place', how='left')
+pop_cluster = pop_cluster.drop(['place'], axis=1)
+```
+- 작업을 위해, 각 관광지의 위치파악 후 관광지를 중심으로 반경 100m 내의 유동인구 데이터 셀들의 합을 집계하고, 계절_성별_나이_평일/휴일_시간대 별로 각 관광지별 유동인구의 median 산출한 데이터 불러오기
+- 군집화된 결과를 데이터에 추가  
+<br>
+
+```ruby
+# 대시보드 앱 생성
+app = Dash(__name__)
+
+# 성별, 연령대, 시간대 옵션
+genders = ['남성', '여성']
+ages = ['10대', '20대', '30대', '40대', '50대', '60대', '70대이상']
+times = ['오전', '점심', '오후', '저녁', '심야']
+
+# 군집별 설명
+cluster_descriptions = {
+    0: "1. 연극과 공연을 즐길 수 있는 곳",
+    1: "2. 맛집, 먹거리가 많은 곳",
+    2: "3. 작품과 전시를 관람할 수 있는 곳",
+    3: "4. 아이와 같이 가기 좋은 볼거리가 많은 곳",
+    4: "5. 역사를 느낄 수 있는 곳"
+}
+
+# 대시보드 레이아웃 정의
+app.layout = html.Div(children=[
+    html.H1(children="대전 중구 관광지 추천", style={'textAlign': 'center'}),
+    
+    html.Div(children=[
+        html.Label('성별을 선택하세요'),
+        dcc.Dropdown(id='gender', options=[{'label': g, 'value': g} for g in genders], value=None),
+        
+        html.Label('연령대를 선택하세요'),
+        dcc.Dropdown(id='age', options=[{'label': a, 'value': a} for a in ages], value=None),
+        
+        html.Label('시간대를 선택하세요'),
+        dcc.Dropdown(id='time', options=[{'label': t, 'value': t} for t in times], value=None),
+        
+        html.Label('날짜를 입력하세요 (yyyy-mm-dd)'),
+        dcc.Input(id='date', type='text', value=None),
+        
+        html.Button('제출', id='submit-button', n_clicks=0)  # 제출 버튼 추가
+    ]),
+    
+    html.Div(id='filtered-data', style={'margin-top': '20px'})  # 결과 출력 영역
+])
+
+# 콜백 정의
+@app.callback(
+    Output('filtered-data', 'children'),
+    Input('submit-button', 'n_clicks'),
+    Input('gender', 'value'),
+    Input('age', 'value'),
+    Input('time', 'value'),
+    Input('date', 'value')
+)
+def update_filtered_data(n_clicks, gender, age, time, date):
+    # 입력된 날짜가 유효한지 확인
+    try:
+        if date and len(date) == 10:  # 'yyyy-mm-dd' 형식 확인
+            date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+        else:
+            return ""
+    except ValueError:
+        return ""
+
+    # 사용자가 모든 선택을 완료하기 전에는 아무것도 표시하지 않음
+    if not (n_clicks > 0 and gender and age and time and date):
+        return ""
+
+    # 휴일 또는 평일 계산
+    kr_holidays = holidays.KR()
+    holiday = '휴일' if date_obj.weekday() >= 5 or date_obj in kr_holidays else '평일'
+
+    # 계절 계산
+    month = date_obj.month
+    if month in [3, 4, 5]:
+        season = '봄'
+    elif month in [6, 7, 8]:
+        season = '여름'
+    elif month in [9, 10, 11]:
+        season = '가을'
+    else:
+        season = '겨울'
+    
+    # 필터링할 컬럼 이름 생성
+    value = f"{season}_{gender}_{age}_{holiday}_{time}"
+    
+    # 데이터 필터링 및 순위 계산
+    filtered_data = pop_cluster[['관광지명', '도로명주소', '군집', value]].copy()
+    filtered_data['순위'] = filtered_data.groupby('군집')[value].rank(ascending=False)
+    filtered_data = filtered_data.sort_values(by=['군집', '순위'], ascending=[True, True])
+
+    # 군집별로 최대 2개의 관광지명과 주소 출력
+    result = []
+    for cluster, description in cluster_descriptions.items():
+        # 해당 군집에 해당하는 데이터 필터링
+        cluster_data = filtered_data[filtered_data['군집'] == cluster].head(2)
+
+        if not cluster_data.empty:
+            result.append(html.H3(description))
+            result.append(html.Table([
+                html.Thead(html.Tr([html.Th("관광지명"), html.Th("주소")])),  # 수정된 부분: html.Thead에 대한 괄호 맞춤
+                html.Tbody([
+                    html.Tr([
+                        html.Td(cluster_data.iloc[i]['관광지명'], style={'padding-right': '20px'}),  # 관광지명과 주소 사이에 패딩 추가
+                        html.Td(cluster_data.iloc[i]['도로명주소'])
+                    ])
+                    for i in range(len(cluster_data))
+                ])
+            ]))
+            result.append(html.Br())  # 군집별 결과 사이에 줄바꿈 추가
+
+    return result
+
+# 앱 실행
+if __name__ == '__main__':
+    app.run_server(debug=True)
+```
 
 ![Animation](https://github.com/user-attachments/assets/5083c8c9-29c3-4f9e-b810-07efce30cb6a)
 
 - 파이썬의 Dash 라이브러리를 이용
 - 사용자에게서 성별, 연령, 시간대와 방문하려는 날짜를 입력받음
-- 생성한 데이터(final_1023.csv)에서 군집별로 해당 성별, 연령, 시간대, 계절, 휴일평일 여부에 유동인구가 많은 관광지 2개씩 추천해주는 대시보드 생성  
+- 앞서 생성한 데이터에서 군집별로 해당 성별, 연령, 시간대, 계절, 휴일평일 여부에 유동인구가 많은 관광지 2개씩 추천해주는 대시보드 생성  
 <br>
 
 ## 6. 결론
